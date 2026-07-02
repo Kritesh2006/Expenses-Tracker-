@@ -593,3 +593,9 @@ svg{display:block}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
+
+/* Chart.js unavailable fallback */
+.chart-fallback{
+  position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  padding:20px;color:var(--slate-2);font-size:.82rem;line-height:1.5;
+}
