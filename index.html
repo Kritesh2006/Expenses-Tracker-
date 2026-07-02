@@ -1,9 +1,268 @@
-The MIT License (MIT)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>SpendSight — Personal Expense Analytics</title>
+<meta name="description" content="SpendSight — a premium, private, frontend-only expense analytics dashboard. Your data never leaves your browser." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='19' font-size='19'>⚡</text></svg>">
+</head>
+<body>
 
-Copyright (c) 2014-2024 Chart.js Contributors
+<!-- ══════════ WELCOME SCREEN ══════════ -->
+<div id="welcome" class="welcome hidden">
+  <div class="welcome-inner">
+    <canvas id="orbWelcome" class="orb orb-lg" width="480" height="480" aria-hidden="true"></canvas>
+    <div class="welcome-brand">
+      <span class="brand-bolt" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H13L13 2Z" fill="currentColor"/></svg>
+      </span>
+      <h1>Spend<span>Sight</span></h1>
+    </div>
+    <p class="welcome-tag">See your money clearly. Command it completely.</p>
+    <div class="welcome-form glass">
+      <label for="nameInput">What should I call you, sir?</label>
+      <div class="welcome-row">
+        <input id="nameInput" type="text" maxlength="24" placeholder="Your name" autocomplete="off" />
+        <button id="nameSubmit" class="btn btn-primary">Enter <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <p class="welcome-note">Stored only on this device. No account. No cloud.</p>
+    </div>
+  </div>
+</div>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+<!-- ══════════ APP SHELL ══════════ -->
+<div id="app" class="app hidden">
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+  <!-- Desktop sidebar -->
+  <aside class="sidebar glass">
+    <div class="sidebar-brand">
+      <span class="brand-bolt"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H13L13 2Z" fill="currentColor"/></svg></span>
+      <span class="sidebar-title">Spend<b>Sight</b></span>
+    </div>
+    <nav class="sidebar-nav" id="sideNav">
+      <button class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-page="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>Add expense</span>
+      </button>
+      <button class="nav-item" data-page="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span>Analytics</span>
+      </button>
+      <button class="nav-item" data-page="transactions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg>
+        <span>Transactions</span>
+      </button>
+      <button class="nav-item" data-page="assistant">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-2.9-.36-4.14-1L3 21l1.6-4.8A8.5 8.5 0 1 1 21 12Z"/><path d="M9 11.5h.01M12.5 11.5h.01M16 11.5h.01"/></svg>
+        <span>Assistant</span>
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="sidebar-user">
+        <span class="user-dot" id="userInitial">K</span>
+        <div><b id="userNameSide">—</b><small>Local profile</small></div>
+      </div>
+    </div>
+  </aside>
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  <!-- Main -->
+  <main class="main" id="main">
+
+    <!-- ════ DASHBOARD ════ -->
+    <section class="page active" id="page-dashboard">
+      <header class="hero glass">
+        <div class="hero-text">
+          <p class="hero-eyebrow" id="heroDate">—</p>
+          <h2 class="hero-title">Hello <span id="userNameHero">—</span> sir.<br>Ready to understand your money today?</h2>
+          <div class="hero-pills">
+            <span class="pill pill-red" id="heroMonthPill">$0 this month</span>
+            <span class="pill" id="heroTxPill">0 transactions</span>
+          </div>
+        </div>
+        <div class="hero-orb-wrap">
+          <canvas id="orbHero" class="orb orb-md" width="360" height="360" aria-hidden="true"></canvas>
+        </div>
+      </header>
+
+      <div class="cards-grid" id="summaryGrid"><!-- summary cards injected --></div>
+
+      <div class="section-head"><h3>Insights</h3><span class="section-sub">Rule-based, computed on-device</span></div>
+      <div class="insight-grid" id="insightGrid"></div>
+
+      <div class="section-head"><h3>Data controls</h3><span class="section-sub">You own every byte</span></div>
+      <div class="data-controls glass">
+        <button class="btn btn-ghost" id="btnDemo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M18.4 5.6l-2.1 2.1M21 12h-3M18.4 18.4l-2.1-2.1M12 18v3M7.7 16.3l-2.1 2.1M6 12H3M7.7 7.7 5.6 5.6"/></svg>Load demo data</button>
+        <button class="btn btn-ghost" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L7 8m5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export JSON</button>
+        <button class="btn btn-ghost" id="btnImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Import JSON</button>
+        <input type="file" id="importFile" accept="application/json" hidden />
+        <button class="btn btn-danger-ghost" id="btnClear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/></svg>Clear all data</button>
+      </div>
+    </section>
+
+    <!-- ════ ADD EXPENSE ════ -->
+    <section class="page" id="page-add">
+      <div class="page-head">
+        <h2>Add expense</h2>
+        <p>Every entry sharpens your picture, sir.</p>
+      </div>
+      <form class="form glass" id="expenseForm" novalidate>
+        <input type="hidden" id="fId" />
+        <div class="form-grid">
+          <div class="field">
+            <label for="fAmount">Amount</label>
+            <div class="amount-wrap"><span>$</span><input id="fAmount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" /></div>
+            <small class="err" id="errAmount"></small>
+          </div>
+          <div class="field">
+            <label for="fDate">Date</label>
+            <input id="fDate" type="date" />
+            <small class="err" id="errDate"></small>
+          </div>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <div class="cat-grid" id="catGrid"></div>
+          <small class="err" id="errCategory"></small>
+        </div>
+        <div class="field">
+          <label for="fNote">Note <em>(optional)</em></label>
+          <input id="fNote" type="text" maxlength="80" placeholder="e.g. Groceries at Harris Teeter" />
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost hidden" id="btnCancelEdit">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-lg" id="btnSave">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H13L13 2Z" fill="currentColor"/></svg>
+            <span id="btnSaveLabel">Save expense</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ════ ANALYTICS ════ -->
+    <section class="page" id="page-analytics">
+      <div class="page-head row">
+        <div><h2>Analytics</h2><p>Patterns, trends, and pressure points.</p></div>
+        <select id="anMonth" class="select glass-input" aria-label="Select month"></select>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card glass span-2">
+          <div class="chart-head"><h4>Monthly spending</h4><span class="chart-sub">Last 6 months compared</span></div>
+          <div class="chart-body"><canvas id="chBar"></canvas></div>
+        </div>
+        <div class="chart-card glass">
+          <div class="chart-head"><h4>Category breakdown</h4><span class="chart-sub" id="chPieSub">This month</span></div>
+          <div class="chart-body"><canvas id="chPie"></canvas></div>
+        </div>
+        <div class="chart-card glass">
+          <div class="chart-head"><h4>Daily trend</h4><span class="chart-sub" id="chLineSub">Day-by-day flow</span></div>
+          <div class="chart-body"><canvas id="chLine"></canvas></div>
+        </div>
+        <div class="chart-card glass">
+          <div class="chart-head"><h4>Spending by weekday</h4><span class="chart-sub">Where the week leaks</span></div>
+          <div class="chart-body"><canvas id="chWeek"></canvas></div>
+        </div>
+        <div class="chart-card glass">
+          <div class="chart-head"><h4>Top 5 expenses</h4><span class="chart-sub" id="topFiveSub">Largest single hits</span></div>
+          <ol class="top-list" id="topFive"></ol>
+        </div>
+        <div class="chart-card glass span-2">
+          <div class="chart-head"><h4>Category ranking</h4><span class="chart-sub">Share of the month</span></div>
+          <div class="rank-list" id="rankList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════ TRANSACTIONS ════ -->
+    <section class="page" id="page-transactions">
+      <div class="page-head"><h2>Transactions</h2><p>Every dollar, accounted for.</p></div>
+      <div class="filters glass">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="txSearch" type="text" placeholder="Search note or category…" />
+        </div>
+        <select id="txMonth" class="select" aria-label="Filter month"></select>
+        <select id="txCategory" class="select" aria-label="Filter category"></select>
+        <select id="txSort" class="select" aria-label="Sort">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="highest">Highest amount</option>
+          <option value="lowest">Lowest amount</option>
+        </select>
+      </div>
+      <div id="txSummary" class="tx-summary"></div>
+      <div id="txList" class="tx-list"></div>
+    </section>
+
+    <!-- ════ ASSISTANT ════ -->
+    <section class="page" id="page-assistant">
+      <div class="chat glass">
+        <div class="chat-head">
+          <canvas id="orbChat" class="orb orb-sm" width="120" height="120" aria-hidden="true"></canvas>
+          <div>
+            <h4>SpendSight Assistant</h4>
+            <span class="chat-status"><i></i>Watching your patterns</span>
+          </div>
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-chips" id="chatChips">
+          <button data-q="How much did I spend this month?">This month</button>
+          <button data-q="last month">Last month</button>
+          <button data-q="predict next month">Predict</button>
+          <button data-q="highest category">Highest category</button>
+          <button data-q="largest expense">Largest expense</button>
+          <button data-q="food spending">Food</button>
+          <button data-q="show insights">Insights</button>
+          <button data-q="help">Help</button>
+        </div>
+        <form class="chat-input" id="chatForm">
+          <input id="chatText" type="text" placeholder="Ask about your spending…" autocomplete="off" />
+          <button type="submit" class="btn btn-primary btn-round" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 14-7-4 7 4 7-14-7Z"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile bottom nav -->
+  <nav class="bottomnav glass" id="bottomNav">
+    <button class="bn-item active" data-page="dashboard" aria-label="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Home</span>
+    </button>
+    <button class="bn-item" data-page="analytics" aria-label="Analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Charts</span>
+    </button>
+    <button class="bn-item bn-add" data-page="add" aria-label="Add expense">
+      <span class="bn-add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+    </button>
+    <button class="bn-item" data-page="transactions" aria-label="Transactions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg><span>List</span>
+    </button>
+    <button class="bn-item" data-page="assistant" aria-label="Assistant">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-2.9-.36-4.14-1L3 21l1.6-4.8A8.5 8.5 0 1 1 21 12Z"/></svg><span>Assist</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Toasts -->
+<div class="toasts" id="toasts"></div>
+
+<!-- Modal -->
+<div class="modal-backdrop hidden" id="modalBackdrop">
+  <div class="modal glass" id="modalBox" role="dialog" aria-modal="true"></div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
